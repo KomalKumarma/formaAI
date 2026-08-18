@@ -1,0 +1,9 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(720px, calc(100% - 32px)); margin: 48px auto; padding: 40px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 16px 45px #17203312; }
+.eyebrow { color: #5b5bd6; font-size: .75rem; font-weight: 800; letter-spacing: .12em; }
+h1 { margin: 4px 0; font-size: 2rem; } h2 { margin: 32px 0 8px; font-size: 1.1rem; } .intro { color: #62708a; }
+form { display: grid; gap: 16px; margin-top: 28px; } label, fieldset { display: grid; gap: 7px; font-weight: 650; } fieldset { border: 0; padding: 0; } legend { margin-bottom: 7px; }
+input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 9px; padding: 11px 12px; font: inherit; } textarea { min-height: 110px; resize: vertical; }
+.choice { display: flex; align-items: center; gap: 9px; font-weight: 500; } .choice input { width: auto; } small { color: #c0263d; } button { border: 0; border-radius: 9px; padding: 13px 18px; background: #4f46e5; color: white; font: inherit; font-weight: 700; cursor: pointer; } .success { color: #047857; font-weight: 650; }
