@@ -17,3 +17,10 @@ export function requireAuth(request, response, next) {
   request.user = JSON.parse(Buffer.from(payload, "base64url").toString());
   next();
 }
+
+export function requireRole(...roles) {
+  return (request, response, next) => {
+    if (!roles.includes(request.user?.role)) return response.status(403).json({ error: "Insufficient permissions." });
+    next();
+  };
+}
