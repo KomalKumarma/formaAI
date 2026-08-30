@@ -9,5 +9,7 @@ aiRouter.post("/extract", requireAuth, (request, response) => {
   for (const field of fields) if (field.name) values[field.name] = null;
   const match = text.match(/(?:my|a) ([A-Z][\w-]*(?:\s+\w+)?)/);
   if (values.vehicle && match) values.vehicle = match[1];
-  response.json({ data: { values, provider: "demo", requiresReview: true } });
+  const allowed = new Set(fields.map((field) => field.name));
+  const safeValues = Object.fromEntries(Object.entries(values).filter(([key]) => allowed.has(key)));
+  response.json({ data: { values: safeValues, provider: "demo", requiresReview: true } });
 });
