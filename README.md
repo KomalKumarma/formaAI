@@ -1,4 +1,4 @@
-# Forma AI (NOT UPDATED)
+# Forma AI 
 AI-augmented dynamic forms for complex, branching workflows. Users can describe a situation in natural language, review AI-assisted field values, and complete only the questions relevant to them.
 
 ## Day 1 deliverable
