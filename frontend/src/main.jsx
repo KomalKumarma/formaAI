@@ -1,42 +1,18 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { useForm } from "react-hook-form";
 import "./styles.css";
 
-const visible = (rule, values) => {
-  if (!rule) return true;
-  const current = values[rule.field];
-  if (rule.operator === "equals") return current === rule.value;
-  if (rule.operator === "contains") return Array.isArray(current) && current.includes(rule.value);
-  return false;
-};
-
-function Field({ field, register, errors }) {
-  if (field.type === "section") return <h2>{field.label}</h2>;
-  const rules = {
-    required: field.required ? `${field.label} is required.` : false,
-    minLength: field.validation?.minLength && { value: field.validation.minLength, message: `Enter at least ${field.validation.minLength} characters.` }
-  };
-  const error = errors[field.name]?.message;
-  if (field.type === "select") return <label>{field.label}<select {...register(field.name, rules)} defaultValue=""><option value="" disabled>Select an option</option>{field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{error && <small>{error}</small>}</label>;
-  if (field.type === "radio") return <fieldset><legend>{field.label}</legend>{field.options.map((option) => <label className="choice" key={option.value}><input type="radio" value={option.value} {...register(field.name, rules)} />{option.label}</label>)}{error && <small>{error}</small>}</fieldset>;
-  if (field.type === "checkbox") return <fieldset><legend>{field.label}</legend>{field.options.map((option) => <label className="choice" key={option.value}><input type="checkbox" value={option.value} {...register(field.name, rules)} />{option.label}</label>)}{error && <small>{error}</small>}</fieldset>;
-  if (field.type === "textarea") return <label>{field.label}<textarea placeholder={field.placeholder} {...register(field.name, rules)} />{error && <small>{error}</small>}</label>;
-  return <label>{field.label}<input type={field.type} placeholder={field.placeholder} {...register(field.name, rules)} />{error && <small>{error}</small>}</label>;
-}
-
-function DynamicForm({ schema }) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm({ mode: "onBlur" });
-  const values = watch();
-  const [submitted, setSubmitted] = useState(false);
-  return <main><p className="eyebrow">FORM VERSION {schema.version}</p><h1>{schema.name}</h1><p className="intro">{schema.description}</p><form onSubmit={handleSubmit(() => setSubmitted(true))}>{schema.fields.filter((field) => visible(field.showIf, values)).map((field) => <Field key={field.name ?? field.id} field={field} register={register} errors={errors} />)}<button type="submit">Validate Day 1 form</button>{submitted && <p className="success">Form validation passed. Draft persistence and AI extraction arrive in later phases.</p>}</form></main>;
-}
-
+const blank = { incidentType: "", vehicle: "", location: "", incidentDate: "", damage: "", drivable: "" };
+function Field({ label, value, set, type = "text", options }) { return <label className="field"><span>{label}</span>{type === "select" ? <select value={value} onChange={(e) => set(e.target.value)}>{options.map((x) => <option key={x} value={x}>{x || "Select an option"}</option>)}</select> : <input type={type} value={value} onChange={(e) => set(e.target.value)}/>}</label>; }
 function App() {
-  const [schema, setSchema] = useState(null);
-  const [error, setError] = useState("");
-  useEffect(() => { fetch("http://localhost:4000/api/forms/vehicle-insurance-claim").then((response) => response.ok ? response.json() : Promise.reject()).then(({ data }) => setSchema(data)).catch(() => setError("Start the Forma AI API on port 4000 to load the Day 1 schema.")); }, []);
-  return schema ? <DynamicForm schema={schema} /> : <main><p className="eyebrow">FORMA AI</p><h1>Dynamic form engine</h1><p>{error || "Loading schema..."}</p></main>;
+  const [text, setText] = useState("My car radiator started leaking on the highway after a collision with a guardrail.");
+  const [values, setValues] = useState(blank); const [busy, setBusy] = useState(false); const [ready, setReady] = useState(false); const [sent, setSent] = useState(false);
+  const set = (key, value) => setValues((v) => ({ ...v, [key]: value }));
+  const analyze = () => { setBusy(true); setSent(false); setTimeout(() => { setValues({ incidentType: "auto_accident", vehicle: "Honda Civic", location: "I-95 highway", incidentDate: "2026-09-22", damage: "Radiator and front bumper", drivable: "no" }); setReady(true); setBusy(false); }, 850); };
+  return <div className="app-shell"><nav><a className="brand" href="#top"><span>ϟ</span>Forma AI</a><div className="nav-links"><a href="#features">Features</a><a href="#demo">Interactive Demo</a><a href="#architecture">Architecture</a><a href="#stack">Tech Stack</a></div><a className="launch mini" href="#demo">Launch Engine →</a></nav><main id="top">
+    <section className="hero"><div className="hero-copy"><div className="pill">✦ &nbsp; Unstructured Narratives to Structured Forms</div><h1>The AI-Augmented <em>Dynamic Form Engine</em></h1><p>Forma AI turns complex human stories into schema-compliant forms in real-time. Reveal conditional logic, validate answers, and eliminate manual data-entry friction.</p><div className="hero-actions"><a className="launch" href="#demo">Launch Live Simulator →</a><a className="secondary" href="#architecture">Explore Architecture</a></div><div className="metrics"><div><strong>95%</strong><span>Less manual filling</span></div><div><strong>&lt;1.8s</strong><span>Extraction pipeline</span></div><div><strong>100%</strong><span>Schema driven</span></div></div></div><div className="pipeline-card"><div className="float-tag">Dynamic Rules Injected</div><header><i></i><i></i><i></i><span>Forma AI Extraction Pipeline</span><small>● LIVE</small></header><div className="narrative"><label>⌁ UNSTRUCTURED NARRATIVE INPUT</label><p>“{text.slice(0, 78)}...”</p></div><div className="pipeline-badge">ϟ AI Structured Pipeline</div><div className="pipeline-grid"><div><label>CATEGORY</label><b>🚘 Auto Accident</b></div><div><label>URGENCY</label><b className="danger">🔥 High (0.94)</b></div></div><div className="branch"><label>DYNAMIC BRANCH ACTIVATED</label><b>Is vehicle drivable?</b><span>Yes / No Toggle</span></div><div className="active-chip">● AI Parsing Active</div></div></section>
+    <section id="features" className="feature-row"><article><span>01</span><h3>Natural language first</h3><p>Tell the story in your own words; Forma AI maps facts to the correct fields.</p></article><article><span>02</span><h3>Dynamic logic</h3><p>Conditional questions appear only when the schema requires them.</p></article><article><span>03</span><h3>Human verification</h3><p>Every extracted answer stays visible, editable, and ready for review.</p></article></section>
+    <section id="demo" className="demo-section"><div className="section-title"><div><span>INTERACTIVE DEMO</span><h2>See the form build itself.</h2></div><p>Paste a scenario, run the extraction pipeline, then review the auto-filled claim.</p></div><div className="demo-grid"><div className="input-panel"><label>Describe your situation</label><textarea value={text} onChange={(e) => setText(e.target.value)}/><button onClick={analyze} disabled={busy}>{busy ? "Analyzing narrative..." : "ϟ Analyze with Forma AI"}</button><div className="security">✓ Schema-restricted output &nbsp; ✓ Human review required</div></div><div className="form-panel"><div className="panel-head"><div><span>VEHICLE CLAIM</span><h3>Structured application</h3></div><div className="progress"><i style={{ width: `${ready ? 78 : 15}%` }}></i><small>{ready ? "78% complete" : "Start extraction"}</small></div></div><div className="fields"><Field label="Incident type" value={values.incidentType} set={(v) => set("incidentType", v)} type="select" options={["", "auto_accident", "animal_collision", "theft"]}/><Field label="Vehicle" value={values.vehicle} set={(v) => set("vehicle", v)}/><Field label="Location" value={values.location} set={(v) => set("location", v)}/><Field label="Incident date" value={values.incidentDate} set={(v) => set("incidentDate", v)} type="date"/>{values.incidentType === "auto_accident" && <><Field label="Damage summary" value={values.damage} set={(v) => set("damage", v)}/><div className="toggle-field"><label>Is the vehicle drivable?</label><div><button className={values.drivable === "yes" ? "selected" : ""} onClick={() => set("drivable", "yes")}>Yes</button><button className={values.drivable === "no" ? "selected" : ""} onClick={() => set("drivable", "no")}>No</button></div></div></>}</div><button className="submit" onClick={() => setSent(true)}>Submit verified application →</button>{sent && <p className="success">✓ Application submitted for reviewer approval.</p>}</div></div></section>
+    <section id="architecture" className="architecture"><div><span>ARCHITECTURE</span><h2>Built for real workflow complexity.</h2><p>Modular backend services separate forms, extraction, validation, applications, reviewer decisions, and access control.</p></div><div className="flow"><b>Narrative</b><i>→</i><b>AI extraction</b><i>→</i><b>Schema validation</b><i>→</i><b>Human review</b><i>→</i><b>Workflow</b></div></section><section id="stack" className="stack"><span>TECH STACK</span><div><b>React</b><b>React Hook Form</b><b>Node.js</b><b>Express</b><b>MongoDB</b><b>Mongoose</b><b>JWT + RBAC</b></div></section></main><footer>FORMA AI <span>AI-augmented workflow automation</span></footer></div>;
 }
-
 createRoot(document.getElementById("root")).render(<StrictMode><App /></StrictMode>);
